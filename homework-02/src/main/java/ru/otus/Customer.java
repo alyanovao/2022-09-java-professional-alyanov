@@ -48,8 +48,6 @@ public class Customer {
         if (o == null || getClass() != o.getClass()) return false;
 
         Customer customer = (Customer) o;
-
-        if (this.id != customer.id) return false;
         return this.id == customer.id;
     }
 
