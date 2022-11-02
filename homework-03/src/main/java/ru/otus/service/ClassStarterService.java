@@ -1,46 +1,27 @@
 package ru.otus.service;
 
+import ru.otus.annotations.After;
+import ru.otus.annotations.Before;
+import ru.otus.annotations.Test;
+import ru.otus.exception.ApplicationException;
 import ru.otus.util.OutputMessageUtility;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;
 
 public class ClassStarterService {
+
+    private ClassStarterService() {
+        throw new ApplicationException("This is Utility class");
+    }
 
     private static final ReflectionService service = new ReflectionServiceImpl();
 
     public static void run(String className) {
             try {
                 Class<?> clazz = service.getClassInstance(className);
-
-                //В классе только один не обязательный метод before и after, с другой реализацией не сталкивался
-                Optional<Method> beforeMethod = Arrays.stream(clazz.getMethods())
-                        .filter(service::hasBefore)
-                        .map(method -> {
-                            OutputMessageUtility.outputString(method.getName() + " has before annotation");
-                            return method;
-                        })
-                        .findFirst();
-
-                Optional<Method> afterMethod = Arrays.stream(clazz.getMethods())
-                        .filter(service::hasAfter)
-                        .map(method -> {
-                            System.out.println(method.getName() + " has after annotation");
-                            return method;
-                        })
-                        .findFirst();
-
-                List<Method> testMethods = Arrays.stream(clazz.getMethods())
-                        .filter(service::hasTest)
-                        .map(method -> {
-                            OutputMessageUtility.outputString(method.getName() + " has test annotation");
-                            return method;
-                        })
-                        .toList();
-
-                List<Method> randomMethods = new ArrayList<>(testMethods);
-                Collections.shuffle(randomMethods);
-                Map<String, Boolean> testResult = runTest(clazz, beforeMethod, randomMethods, afterMethod);
+                Map<String, Boolean> testResult = runTest(clazz);
                 checkTestResult(testResult);
             }
             catch (Exception e) {
@@ -48,26 +29,54 @@ public class ClassStarterService {
             }
         }
 
-        private static Map<String, Boolean> runTest(Class<?> clazz, Optional<Method> beforeMethod, List<Method> testMethods,
-                                                    Optional<Method> afterMethod) {
-            Map<String, Boolean> testResult = new HashMap<>();
+    private static List<Method> getListMethodWithAnnotation(Class<?> clazz, Class<? extends Annotation> annotationClass) {
+        return Arrays.stream(clazz.getMethods())
+                .filter(method -> service.hasAnnotation(method, annotationClass))
+                .peek(method -> OutputMessageUtility.outputString(method.getName() + " has annotation " + annotationClass.getSimpleName()))
+                .toList();
+    }
 
-            testMethods.stream().forEach(testMethod -> {
-                OutputMessageUtility.outputString("----------------------------------");
-                Object object = service.getNewClassInstance(clazz, null);
+    private static Optional<Method> getMethodWithAnnotation(Class<?> clazz, Class<? extends Annotation> annotationClass) {
+        List<Method> methods = Arrays.stream(clazz.getMethods())
+                .filter(method -> service.hasAnnotation(method, annotationClass))
+                .peek(method -> OutputMessageUtility.outputString(method.getName() + " has annotation " + annotationClass.getSimpleName()))
+                .toList();
+        if (methods.size() > 1) {
+            throw new ApplicationException("Methods with annotation " + annotationClass.getSimpleName() + " more one");
+        }
+        return methods.isEmpty() ? Optional.empty() : Optional.ofNullable(methods.get(0));
+    }
 
-                if (beforeMethod.isPresent()) {
-                    service.callMethod(object, beforeMethod.get().getName());
-                }
+    private static Map<String, Boolean> runTest(Class<?> clazz) {
+        Map<String, Boolean> testResult = new HashMap<>();
 
+        //В классе только один не обязательный метод before и after, с другой реализацией не сталкивался
+        Optional<Method> beforeMethod = getMethodWithAnnotation(clazz, Before.class);
+        Optional<Method> afterMethod = getMethodWithAnnotation(clazz, After.class);
+        List<Method> testMethods = getListMethodWithAnnotation(clazz, Test.class);
+
+        List<Method> randomMethods = new ArrayList<>(testMethods);
+        Collections.shuffle(randomMethods);
+
+        testMethods.forEach(testMethod -> {
+            OutputMessageUtility.outputString("----------------------------------");
+            Object object = service.getNewClassInstance(clazz, null);
+
+            boolean executeBefore = true;
+            if (beforeMethod.isPresent()) {
+                executeBefore = service.callMethod(object, beforeMethod.get().getName());
+            }
+
+            if (executeBefore) {
                 testResult.put(testMethod.getName(), service.callMethod(object, testMethod.getName()));
+            }
 
-                if (afterMethod.isPresent()) {
-                    service.callMethod(object, afterMethod.get().getName());
-                }
-            });
-            return testResult;
-        };
+            if (afterMethod.isPresent()) {
+                service.callMethod(object, afterMethod.get().getName());
+            }
+        });
+        return testResult;
+    }
 
     private static void checkTestResult(Map<String, Boolean> testResult) {
         int countValidTests = 0;
@@ -75,7 +84,7 @@ public class ClassStarterService {
 
         OutputMessageUtility.outputString("Test execute result:");
         for (Map.Entry<String, Boolean> test : testResult.entrySet()) {
-            if (test.getValue()) {
+            if (Boolean.TRUE.equals(test.getValue())) {
                 countValidTests++;
                 OutputMessageUtility.outputString("Test " + test.getKey() + " is valid");
             }

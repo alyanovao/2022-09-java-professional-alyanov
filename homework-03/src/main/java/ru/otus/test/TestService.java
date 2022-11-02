@@ -14,17 +14,17 @@ public class TestService {
 
     @Test
     public void testMethod1(String message) {
-        System.out.println(String.format("Вызываем @Test и выводим сообщение: %",message));
+        System.out.println(String.format("Вызываем @Test и выводим сообщение: %s", message));
     }
 
     @Test
     public void testMethod2(String message, BigDecimal digit) {
-        System.out.println(String.format("Вызываем @Test и выводим сообщение: % и число: %",message, digit));
+        System.out.println(String.format("Вызываем @Test и выводим сообщение: %s и число: %d", message, digit));
     }
 
     @Test
     public void testMethod3() {
-        System.out.println(String.format("Вызываем @Test"));
+        System.out.println("Вызываем @Test");
     }
 
     @After

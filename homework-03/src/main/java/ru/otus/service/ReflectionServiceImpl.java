@@ -1,8 +1,5 @@
 package ru.otus.service;
 
-import ru.otus.annotations.After;
-import ru.otus.annotations.Before;
-import ru.otus.annotations.Test;
 import ru.otus.util.OutputMessageUtility;
 import ru.otus.util.ReflectionHelper;
 
@@ -26,13 +23,8 @@ public class ReflectionServiceImpl implements ReflectionService {
     }
 
     @Override
-    public boolean hasBefore(Method method) {
-        return method.isAnnotationPresent(Before.class);
-    }
-
-    @Override
-    public boolean hasAfter(Method method) {
-        return method.isAnnotationPresent(After.class);
+    public boolean hasAnnotation(Method method, Class annotationClass) {
+        return method.isAnnotationPresent(annotationClass);
     }
 
     @Override
@@ -45,10 +37,5 @@ public class ReflectionServiceImpl implements ReflectionService {
             return false;
         }
         return true;
-    }
-
-    @Override
-    public boolean hasTest(Method method) {
-        return method.isAnnotationPresent(Test.class);
     }
 }

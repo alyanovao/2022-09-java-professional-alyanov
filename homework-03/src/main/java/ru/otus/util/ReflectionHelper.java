@@ -1,5 +1,7 @@
 package ru.otus.util;
 
+import ru.otus.exception.ApplicationException;
+
 import java.util.Arrays;
 
 
@@ -13,7 +15,7 @@ public class ReflectionHelper {
             field.setAccessible(true);
             return field.get(object);
         } catch (Exception ex) {
-            throw new RuntimeException(ex);
+            throw new ApplicationException(ex);
         }
     }
 
@@ -23,7 +25,7 @@ public class ReflectionHelper {
             field.setAccessible(true);
             field.set(object, value);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ApplicationException(e);
         }
     }
 
@@ -33,7 +35,7 @@ public class ReflectionHelper {
             method.setAccessible(true);
             return method.invoke(object, args);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ApplicationException(e);
         }
     }
 
@@ -46,7 +48,7 @@ public class ReflectionHelper {
                 return type.getDeclaredConstructor(classes).newInstance(args);
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ApplicationException(e);
         }
     }
 
