@@ -1,0 +1,44 @@
+-XX:+UseG1GC
+--Xms и Xmx=256m
+Падение приложения с HeapDumpOnOutOfMemoryError
+
+--Xms и Xmx=384m
+spend msec:6905, sec:6
+
+--Xms и Xmx=512m
+spend msec:6189, sec:6
+
+--Xms и Xmx=640m
+spend msec:6117, sec:6
+
+--Xms и Xmx=768m
+spend msec:5499, sec:5
+
+--Xms и Xmx=896m
+spend msec:5781, sec:5
+
+--Xms и Xmx=1024m
+spend msec:5316, sec:5
+
+--Xms и Xmx=1152m
+spend msec:5208, sec:5
+
+--Xms и Xmx=1280m
+spend msec:5276, sec:5
+
+--Xms и Xmx=1536m
+spend msec:6134, sec:6
+
+--Xms и Xmx=1g
+spend msec:5405, sec:5
+
+--Xms и Xmx=2g
+spend msec:4810, sec:4
+
+--Xms и Xmx=8g
+spend msec:5574, sec:5
+
+--Xms и Xmx=12g
+spend msec:6981, sec:6
+
+Итого: минимальный объем heap 1024mb, дальнейшее повышение объема памяти не приводит к высокому росту производительности
