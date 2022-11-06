@@ -3,6 +3,7 @@ package ru.otus.service;
 import ru.otus.annotations.After;
 import ru.otus.annotations.Before;
 import ru.otus.annotations.Test;
+import ru.otus.dto.TestAnnotationDto;
 import ru.otus.exception.ApplicationException;
 import ru.otus.util.OutputMessageUtility;
 
@@ -16,12 +17,11 @@ public class ClassStarterService {
         throw new ApplicationException("This is Utility class");
     }
 
-    private static final ReflectionService service = new ReflectionServiceImpl();
-
     public static void run(String className) {
             try {
-                Class<?> clazz = service.getClassInstance(className);
-                Map<String, Boolean> testResult = runTest(clazz);
+                Class<?> clazz = ReflectionService.getClassInstance(className);
+                TestAnnotationDto dto = getTestAnnotations(clazz);
+                Map<String, Boolean> testResult = startTest(clazz, dto);
                 checkTestResult(testResult);
             }
             catch (Exception e) {
@@ -31,51 +31,51 @@ public class ClassStarterService {
 
     private static List<Method> getListMethodWithAnnotation(Class<?> clazz, Class<? extends Annotation> annotationClass) {
         return Arrays.stream(clazz.getMethods())
-                .filter(method -> service.hasAnnotation(method, annotationClass))
+                .filter(method -> ReflectionService.hasAnnotation(method, annotationClass))
                 .peek(method -> OutputMessageUtility.outputString(method.getName() + " has annotation " + annotationClass.getSimpleName()))
                 .toList();
     }
 
-    private static Optional<Method> getMethodWithAnnotation(Class<?> clazz, Class<? extends Annotation> annotationClass) {
-        List<Method> methods = Arrays.stream(clazz.getMethods())
-                .filter(method -> service.hasAnnotation(method, annotationClass))
-                .peek(method -> OutputMessageUtility.outputString(method.getName() + " has annotation " + annotationClass.getSimpleName()))
-                .toList();
+    private static Method getMethodWithAnnotation(Class<?> clazz, Class<? extends Annotation> annotationClass) {
+        List<Method> methods = getListMethodWithAnnotation(clazz, annotationClass);
         if (methods.size() > 1) {
             throw new ApplicationException("Methods with annotation " + annotationClass.getSimpleName() + " more one");
         }
-        return methods.isEmpty() ? Optional.empty() : Optional.ofNullable(methods.get(0));
+        return methods.isEmpty() ? null : methods.get(0);
     }
 
-    private static Map<String, Boolean> runTest(Class<?> clazz) {
-        Map<String, Boolean> testResult = new HashMap<>();
-
+    private static TestAnnotationDto getTestAnnotations(Class<?> clazz) {
         //В классе только один не обязательный метод before и after, с другой реализацией не сталкивался
-        Optional<Method> beforeMethod = getMethodWithAnnotation(clazz, Before.class);
-        Optional<Method> afterMethod = getMethodWithAnnotation(clazz, After.class);
+        Method beforeMethod = getMethodWithAnnotation(clazz, Before.class);
         List<Method> testMethods = getListMethodWithAnnotation(clazz, Test.class);
+        Method afterMethod = getMethodWithAnnotation(clazz, After.class);
 
         List<Method> randomMethods = new ArrayList<>(testMethods);
         Collections.shuffle(randomMethods);
+        return new TestAnnotationDto(beforeMethod, randomMethods, afterMethod);
+    }
 
-        testMethods.forEach(testMethod -> {
+    private static Map<String, Boolean> startTest(Class<?> clazz, TestAnnotationDto dto) {
+        Map<String, Boolean> result = new HashMap<>();
+
+        dto.getTestAnnotations().forEach(testMethod -> {
             OutputMessageUtility.outputString("----------------------------------");
-            Object object = service.getNewClassInstance(clazz, null);
+            Object object = ReflectionService.getNewClassInstance(clazz, null);
 
             boolean executeBefore = true;
-            if (beforeMethod.isPresent()) {
-                executeBefore = service.callMethod(object, beforeMethod.get().getName());
+            if (Objects.nonNull(dto.getBeforeAnnotation())) {
+                executeBefore = ReflectionService.callMethod(object, dto.getBeforeAnnotation().getName());
             }
 
             if (executeBefore) {
-                testResult.put(testMethod.getName(), service.callMethod(object, testMethod.getName()));
+                result.put(testMethod.getName(), ReflectionService.callMethod(object, testMethod.getName()));
             }
 
-            if (afterMethod.isPresent()) {
-                service.callMethod(object, afterMethod.get().getName());
+            if (Objects.nonNull(dto.getAfterAnnotation())) {
+                ReflectionService.callMethod(object, dto.getAfterAnnotation().getName());
             }
         });
-        return testResult;
+        return result;
     }
 
     private static void checkTestResult(Map<String, Boolean> testResult) {
