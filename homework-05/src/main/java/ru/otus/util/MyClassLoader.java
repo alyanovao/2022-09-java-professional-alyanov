@@ -6,13 +6,13 @@ import java.nio.file.Files;
 
 public class MyClassLoader extends ClassLoader {
 
-    Class<?> defineClass(String className) throws IOException {
+    public Class<?> defineClass(String className) throws IOException {
         var file = new File(getFileName(className));
         byte[] bytecode = Files.readAllBytes(file.toPath());
         return super.defineClass(className, bytecode, 0, bytecode.length);
     }
 
-    String getFileName(String className) {
+    public String getFileName(String className) {
         return "myClass" + File.separator + className.substring(className.lastIndexOf('.') + 1) + ".class";
     }
 }
