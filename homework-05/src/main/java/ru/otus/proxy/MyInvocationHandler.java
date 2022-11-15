@@ -7,20 +7,27 @@ import ru.otus.util.ReflectionUtility;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MyInvocationHandler implements InvocationHandler {
 
     private Object instance;
-    private Method[] classMethods;
+    private Map<Method, Method> equalMethods = new HashMap<>();
 
     public MyInvocationHandler(Object instance) {
         this.instance = instance;
-        this.classMethods = instance.getClass().getDeclaredMethods();
+        Method[] classMethods = instance.getClass().getDeclaredMethods();
+        Method[] interfaceMethods = instance.getClass().getInterfaces()[0].getDeclaredMethods();
+        for (Method method : interfaceMethods) {
+            Method methodClass = getMethodByImplementation(method, classMethods);
+            equalMethods.put(method, methodClass);
+        }
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] objects) throws Throwable {
-        Method newMethod = getMethodByImplementation(method, classMethods);
+        Method newMethod = equalMethods.get(method);
         if (ReflectionUtility.hasAnnotation(newMethod, Log.class)) {
             OutputMessageUtility.outputString("execute method: " + method.getName() + ", param " + method.getParameterTypes().length);
         }
