@@ -1,6 +1,7 @@
 package ru.otus.proxy;
 
 import ru.otus.annotations.Log;
+import ru.otus.dto.MethodParam;
 import ru.otus.exception.ApplicationException;
 import ru.otus.util.OutputMessageUtility;
 import ru.otus.util.ReflectionUtility;
@@ -13,7 +14,7 @@ import java.util.Map;
 public class MyInvocationHandler implements InvocationHandler {
 
     private Object instance;
-    private Map<Method, Method> equalMethods = new HashMap<>();
+    private Map<Method, MethodParam> equalMethods = new HashMap<>();
 
     public MyInvocationHandler(Object instance) {
         this.instance = instance;
@@ -21,15 +22,14 @@ public class MyInvocationHandler implements InvocationHandler {
         Method[] interfaceMethods = instance.getClass().getInterfaces()[0].getDeclaredMethods();
         for (Method method : interfaceMethods) {
             Method methodClass = getMethodByImplementation(method, classMethods);
-            equalMethods.put(method, methodClass);
+            equalMethods.put(method, new MethodParam(ReflectionUtility.hasAnnotation(methodClass, Log.class), method.getParameterTypes().length));
         }
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] objects) throws Throwable {
-        Method newMethod = equalMethods.get(method);
-        if (ReflectionUtility.hasAnnotation(newMethod, Log.class)) {
-            OutputMessageUtility.outputString("execute method: " + method.getName() + ", param " + method.getParameterTypes().length);
+        if (equalMethods.get(method).isHasAnnotation()) {
+            OutputMessageUtility.outputString("execute method: " + method.getName() + ", param " + equalMethods.get(method).getCountParam());
         }
         return method.invoke(instance, objects);
     }
