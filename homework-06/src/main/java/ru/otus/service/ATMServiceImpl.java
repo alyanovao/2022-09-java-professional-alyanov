@@ -1,10 +1,7 @@
 package ru.otus.service;
 
-import ru.otus.model.ATM;
 import ru.otus.model.Banknote;
-import ru.otus.model.Cassette;
 import ru.otus.processor.OutputService;
-import ru.otus.processor.OutputServiceImpl;
 
 import java.util.List;
 
@@ -12,13 +9,12 @@ public class ATMServiceImpl implements ATMService {
 
 
     private CalculationModule calculation;
-    private CassetteControlModule control;
     private OutputService outputService;
 
-    public ATMServiceImpl(List<Cassette> cassettes) {
-        this.control = new CassetteControlModuleImpl(cassettes);
-        this.calculation = new CalculationModuleImpl(control);
-        outputService = new OutputServiceImpl();
+    public ATMServiceImpl(CalculationModule calculation,
+                          OutputService outputService) {
+        this.calculation = calculation;
+        this.outputService = outputService;
     }
 
     @Override

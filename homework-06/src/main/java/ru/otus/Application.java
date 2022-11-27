@@ -17,7 +17,8 @@ public class Application {
         CassetteControlModule module = new CassetteControlModuleImpl(cassettes);
         CalculationModule calculation = new CalculationModuleImpl(module);
         OutputService output = new OutputServiceImpl();
-        output.outputMessage(calculation.getCash(2400).toString());
-        output.outputMessage(String.valueOf(calculation.getSum()));
+        ATMService atmService = new ATMServiceImpl(calculation, output);
+        atmService.getCash(2400);
+        atmService.getSum();
     }
 }
