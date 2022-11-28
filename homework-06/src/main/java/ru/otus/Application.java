@@ -18,7 +18,7 @@ public class Application {
         CalculationModule calculation = new CalculationModuleImpl(module);
         OutputService output = new OutputServiceImpl();
         ATMService atmService = new ATMServiceImpl(calculation, output);
-        atmService.getCash(2400);
+        atmService.getCash(5000);
         atmService.getSum();
     }
 }

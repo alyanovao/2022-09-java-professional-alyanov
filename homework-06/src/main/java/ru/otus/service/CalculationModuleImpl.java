@@ -7,19 +7,16 @@ import ru.otus.model.Nominal;
 import ru.otus.processor.OutputService;
 import ru.otus.processor.OutputServiceImpl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CalculationModuleImpl implements CalculationModule {
 
     private CassetteControlModule module;
-    HashMap<Nominal, Integer> cache;
+    EnumMap<Nominal, Integer> cache;
     OutputService outputService = new OutputServiceImpl();
 
     public CalculationModuleImpl(CassetteControlModule module) {
-        cache = new HashMap<>();
+        cache = new EnumMap<>(Nominal.class);
         this.module = module;
         var cassettes = this.module.getCassettes();
         for(Cassette cassette: cassettes) {
@@ -35,7 +32,7 @@ public class CalculationModuleImpl implements CalculationModule {
     @Override
     public List<Banknote> getCash(long summ) {
         List<Banknote> cash = new ArrayList<>();
-        HashMap<Nominal, Integer> temp = new HashMap<>();
+        EnumMap<Nominal, Integer> temp = new EnumMap<>(Nominal.class);
 
         long sum = summ;
         int div = 0;

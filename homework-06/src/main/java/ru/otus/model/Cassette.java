@@ -7,7 +7,7 @@ import java.util.List;
 
 public class Cassette {
 
-    private static final int size = 50;
+    private static final int SIZE = 50;
     private Deque<Banknote> banknotes;
 
     public Cassette() {
@@ -15,7 +15,7 @@ public class Cassette {
     }
 
     public Integer getCassetteSize() {
-        return size;
+        return SIZE;
     }
 
     public Nominal getNominal() {
