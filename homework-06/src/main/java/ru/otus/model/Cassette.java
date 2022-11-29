@@ -1,32 +1,48 @@
 package ru.otus.model;
 
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
+import ru.otus.exception.NoEqualsNominalException;
+import ru.otus.exception.TooManyBanknotesException;
+import ru.otus.utility.Static;
+
+import java.util.*;
 
 public class Cassette {
 
-    private static final int SIZE = 50;
-    private Deque<Banknote> banknotes;
+    private final Deque<Banknote> banknotes;
+    private final Nominal nominal;
 
-    public Cassette() {
+    public Cassette(Nominal nominal) {
+        this.nominal = nominal;
         this.banknotes = new LinkedList<>();
     }
 
     public Integer getCassetteSize() {
-        return SIZE;
+        return Static.CASSETTE_SIZE;
     }
 
     public Nominal getNominal() {
-        return banknotes.getFirst().getNominal();
+        return nominal;
     }
 
     public Integer countBanknote() {
         return banknotes.size();
     }
 
+    private boolean checkNominal(Nominal nominal) {
+        return !this.getNominal().equals(nominal);
+    }
+
+    private boolean checkMaxCapacityCassette() {
+        return (banknotes.size() > getCassetteSize());
+    }
+
     public void addBanknote(Banknote banknote) {
+        if (checkNominal(banknote.getNominal())) {
+            throw new NoEqualsNominalException("not valid nominal");
+        }
+        if (checkMaxCapacityCassette()) {
+            throw new TooManyBanknotesException("cassette is full");
+        }
         banknotes.add(banknote);
     }
 
