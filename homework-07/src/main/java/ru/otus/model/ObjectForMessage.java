@@ -6,9 +6,6 @@ import java.util.Objects;
 public class ObjectForMessage {
     private List<String> data;
 
-    public ObjectForMessage() {
-    }
-
     public List<String> getData() {
         return data;
     }

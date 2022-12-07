@@ -17,7 +17,7 @@ public class HistoryListener implements Listener, HistoryReader {
     @Override
     public Optional<Message> findMessageById(long id) {
         try {
-            var res = messageQueue.get((Long) id);
+            var res = messageQueue.get(id);
             return Optional.ofNullable(res);
         }
         catch (Exception e) {
