@@ -7,8 +7,8 @@ import ru.otus.service.EventService;
 
 public class ProcessorWithCheck implements Processor {
 
-    private DateService dateService;
-    private EventService eventService;
+    private final DateService dateService;
+    private final EventService eventService;
 
     public ProcessorWithCheck(DateService dateService, EventService eventService) {
         this.dateService = dateService;
@@ -21,7 +21,7 @@ public class ProcessorWithCheck implements Processor {
         var sec = dateService.getSeconds(s);
         System.out.println("sec: " + sec);
         if (dateService.checkSec(sec)) {
-            throw new EvenSecondException();
+            throw new EvenSecondException("even second");
         }
         return message;
     }

@@ -14,5 +14,8 @@ public class ObjectForMessage {
         if (Objects.isNull(this.data)) {
             this.data = data;
         }
+        else {
+            this.data.addAll(data);
+        }
     }
 }
