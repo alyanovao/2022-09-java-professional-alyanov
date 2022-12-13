@@ -92,7 +92,9 @@ public class Message {
     }
 
     public ObjectForMessage getField13() {
-        return field13;
+        ObjectForMessage cloneMessage = new ObjectForMessage();
+        cloneMessage.setData(field13.getData());
+        return cloneMessage;
     }
 
     @Override

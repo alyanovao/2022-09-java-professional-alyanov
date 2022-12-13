@@ -1,7 +1,6 @@
 package ru.otus.model;
 
 import java.util.List;
-import java.util.Objects;
 
 public class ObjectForMessage {
     private List<String> data;
@@ -11,11 +10,6 @@ public class ObjectForMessage {
     }
 
     public void setData(List<String> data) {
-        if (Objects.isNull(this.data)) {
-            this.data = data;
-        }
-        else {
-            this.data.addAll(data);
-        }
+        this.data = data;
     }
 }
