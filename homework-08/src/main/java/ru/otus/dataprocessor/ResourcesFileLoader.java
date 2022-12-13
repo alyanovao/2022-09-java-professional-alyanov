@@ -1,41 +1,48 @@
 package ru.otus.dataprocessor;
 
-import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import ru.otus.model.Measurement;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ResourcesFileLoader implements Loader {
     private final String res;
+    private final ObjectMapper objectMapper;
 
     public ResourcesFileLoader(String fileName) {
-        try (
-            var in = this.getClass().getClassLoader().getResourceAsStream(fileName);
-            var buffer = new BufferedInputStream(in);
-            var reader = new InputStreamReader(buffer);
-            var bufferReader = new BufferedReader(reader)
-        ) {
-            res = bufferReader.readLine();
-
-        } catch (IOException e) {
-            throw new FileProcessException(e);
-        }
+        res = fileName;
+        objectMapper = new ObjectMapper();
     }
 
     @Override
     public List<Measurement> load() {
         //читает файл, парсит и возвращает результат
-        Gson gson = new Gson();
-        Type type = new TypeToken<ArrayList<Measurement>>(){}.getType();
-        List<Measurement> list = gson.fromJson(res, type);
-        return Collections.unmodifiableList(list);
+        try (
+                var in = this.getClass().getClassLoader().getResourceAsStream(res);
+                var buffer = new BufferedInputStream(in);
+                var reader = new InputStreamReader(buffer);
+                var bufferReader = new BufferedReader(reader)
+        ) {
+            StringBuilder builder = new StringBuilder();
+            var line = bufferReader.readLine();
+            while(line != null) {
+                builder.append(line);
+                line = bufferReader.readLine();
+            }
+            List<LinkedHashMap> list = objectMapper.readValue(builder.toString(), new TypeReference<List>() {});
+            List<Measurement> listMeasurement = list.stream()
+                    .map(e -> new Measurement((String) e.get("name"), (Double) e.get("value")))
+                    .collect(Collectors.toList());
+            return listMeasurement;
+        } catch (IOException e) {
+            throw new FileProcessException(e);
+        }
     }
 }
