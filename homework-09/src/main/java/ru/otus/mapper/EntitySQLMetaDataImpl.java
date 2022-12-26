@@ -1,7 +1,6 @@
 package ru.otus.mapper;
 
-import ru.otus.processor.SqlUtils;
-
+import java.lang.reflect.Field;
 import java.util.stream.Collectors;
 
 public class EntitySQLMetaDataImpl implements EntitySQLMetaData {
@@ -14,18 +13,18 @@ public class EntitySQLMetaDataImpl implements EntitySQLMetaData {
 
     @Override
     public String getSelectAllSql() {
-        return String.format("SELECT %S FROM %S", SqlUtils.getColumns(entityClassMetaData), entityClassMetaData.getName());
+        return String.format("SELECT %S FROM %S", getColumns(entityClassMetaData), entityClassMetaData.getName());
     }
 
     @Override
     public String getSelectByIdSql() {
-        return String.format("SELECT %S FROM %S WHERE %S = ?", SqlUtils.getColumns(entityClassMetaData),
+        return String.format("SELECT %S FROM %S WHERE %S = ?", getColumns(entityClassMetaData),
                 entityClassMetaData.getName(), entityClassMetaData.getIdField().getName());
     }
 
     @Override
     public String getInsertSql() {
-        return String.format("INSERT INTO %s VALUES (%s)", SqlUtils.getInsertParam(entityClassMetaData),
+        return String.format("INSERT INTO %s VALUES (%s)", getInsertParam(entityClassMetaData),
                 entityClassMetaData.getFieldsWithoutId().stream()
                         .map(field -> "?")
                         .collect(Collectors.joining(", ")));
@@ -33,6 +32,22 @@ public class EntitySQLMetaDataImpl implements EntitySQLMetaData {
 
     @Override
     public String getUpdateSql() {
-        return String.format("UPDATE %S SET NAME = VALUE WHERE Id = ?", SqlUtils.getUpdateParam(entityClassMetaData));
+        return String.format("UPDATE %S SET NAME = VALUE WHERE Id = ?", getUpdateParam(entityClassMetaData));
+    }
+
+    private String getColumns(EntityClassMetaData<?> entityClassMetaData) {
+        return entityClassMetaData.getAllFields().stream().map(Field::getName).collect(Collectors.joining(", "));
+    }
+
+    private String getInsertParam(EntityClassMetaData<?> entityClassMetaData) {
+        return entityClassMetaData.getName() + "(" +
+                entityClassMetaData.getFieldsWithoutId().stream()
+                        .map(Field::getName).collect(Collectors.joining(", ")) + ")";
+    }
+
+    private String getUpdateParam(EntityClassMetaData<?> entityClassMetaData) {
+        return entityClassMetaData.getName() + entityClassMetaData.getFieldsWithoutId()
+                .stream()
+                .map(field -> "SET " + field.getName() + " = ?").collect(Collectors.joining(", "));
     }
 }
