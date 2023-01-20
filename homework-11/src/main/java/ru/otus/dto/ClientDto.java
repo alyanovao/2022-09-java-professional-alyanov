@@ -1,8 +1,11 @@
-package ru.otus.crm.model;
+package ru.otus.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import ru.otus.crm.model.Address;
+import ru.otus.crm.model.Client;
+import ru.otus.crm.model.Phone;
 
 import java.util.List;
 
