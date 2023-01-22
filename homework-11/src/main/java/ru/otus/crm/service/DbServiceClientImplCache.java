@@ -1,5 +1,6 @@
 package ru.otus.crm.service;
 
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.otus.cachehw.HwCache;
@@ -17,37 +18,34 @@ public class DbServiceClientImplCache implements DBServiceClient {
 
     private final DataTemplate<Client> clientDataTemplate;
     private final TransactionManager transactionManager;
-    private HwCache<Long, Client> cache;
+    private HwCache<String, Client> cache;
 
     public DbServiceClientImplCache(TransactionManager transactionManager, DataTemplate<Client> clientDataTemplate) {
         this.transactionManager = transactionManager;
         this.clientDataTemplate = clientDataTemplate;
-        cache = new MyCache<Long, Client>();
+        cache = new MyCache<String, Client>();
     }
 
     @Override
     public Client saveClient(Client client) {
-        return transactionManager.doInTransaction(session -> {
+        var clientPersist = transactionManager.doInTransaction(session -> {
             var clientCloned = client.clone();
             if (client.getId() == null) {
                 clientDataTemplate.insert(session, clientCloned);
                 log.info("created client: {}", clientCloned);
-                cache.put(client.getId(), client);
-                return clientCloned;
             }
             clientDataTemplate.update(session, clientCloned);
             log.info("updated client: {}", clientCloned);
-            clientCloned.getAddress().getStreet();
-            cache.remove(client.getId());
-            cache.put(client.getId(), client);
             return clientCloned;
         });
+        cache.put(clientPersist.getId().toString(), clientPersist);
+        return clientPersist;
     }
 
     @Override
     public Optional<Client> getClient(long id) {
         return transactionManager.doInReadOnlyTransaction(session -> {
-            var client = cache.get(id);
+            var client = cache.get(String.valueOf(id));
             if (Objects.nonNull(client)) {
                 log.info("cache client: {}", client);
                 return Optional.of(client);
@@ -56,6 +54,7 @@ public class DbServiceClientImplCache implements DBServiceClient {
             log.info("client: {}", clientOptional);
             if (clientOptional.isPresent()) {
                 client = clientOptional.get();
+                cache.put(client.getId().toString(), client);
                 return Optional.of(Client.unProxy(client));
             }
             return Optional.empty();
