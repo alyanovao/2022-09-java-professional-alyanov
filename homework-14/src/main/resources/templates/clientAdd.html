@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Создание клиента</title>
+    <link th:href="@{/styles/editStyle.css}" rel="stylesheet"/>
+</head>
+<body>
+<form id="edit-form" action="clientAdd.html" th:method="post" th:action="@{/clientAdd}" th:object="${clientDto}">
+    <h3>Создание клиента:</h3>
+
+    <div class="row">
+        <label for="client-fio-input">ФИО:</label>
+        <input id="client-fio-input" name="name" type="text" value="John Doe" th:value="*{name}"/>
+    </div>
+
+    <div class="row">
+        <label for="client-street-input">Улица:</label>
+        <input id="client-street-input" name="street" type="text" value="John Doe" th:value="*{street}"/>
+    </div>
+
+    <div class="row">
+        <label for="client-phone-input">Телефон:</label>
+        <input id="client-phone-input" name="phone" type="text" value="John Doe" th:value="*{phone}"/>
+    </div>
+
+    <div class="row">
+        <button type="submit">Сохранить</button>
+        <a href="clients.html" th:href="@{/}"><button type="button">Отмена</button></a>
+    </div>
+</form>
+</body>
+</html>

@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5430/demoDB
+    driver-class-name: org.postgresql.Driver
+    username: usr
+    password: pwd
+  flyway:
+    enabled: true
+    locations: db/migration
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+
+    show-sql: true
+logging:
+  level:
+    root: info
+    org.springframework: info

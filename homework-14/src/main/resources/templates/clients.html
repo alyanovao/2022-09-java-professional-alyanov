@@ -1,0 +1,24 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Клиенты</title>
+    <link th:href="@{/styles/tableStyle.css}" rel="stylesheet"/>
+</head>
+<body>
+<table class="clients">
+    <thead>
+    <tr>
+        <td>ФИО</td>
+        <td>Адрес</td>
+        <td>Телефон</td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="client : ${clients}">
+        <td th:text="${client.name}">name</td>
+        <td th:text="${client.street}">address</td>
+        <td th:text="${client.phone}">phone</td>
+    </tr>
+    <td><a href="clientAdd.html" th:href="@{/clientAdd}">Создать</a></td>
+</table>
+</body>
+</html>
