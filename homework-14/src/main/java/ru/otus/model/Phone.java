@@ -4,17 +4,16 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class Phone {
 
     @Id
-    private Long Id;
+    private final Long Id;
 
     @NonNull
-    private String number;
+    private final String number;
 
     @NonNull
-    private Long clientId;
+    private final Long clientId;
 
 }
