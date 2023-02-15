@@ -40,7 +40,7 @@ public class ViewController {
     @PostMapping("/clientAdd")
     public String addClient(ClientDto clientDto) {
         Set<Address> addresses = Arrays.stream(clientDto.getStreet().split(";")).map(address -> new Address(null, address, null)).collect(Collectors.toSet());
-        Set<Phone> phones = Arrays.stream(clientDto.getPhone().split(";")).map(phone -> new Phone(null, phone, null)).collect(Collectors.toSet());
+        Set<Phone> phones = Arrays.stream(clientDto.getPhone().split(";")).map(phone -> new Phone(null, phone, 0L)).collect(Collectors.toSet());
         Client client = new Client(clientDto.getName(), addresses, phones);
         clientService.saveClient(client);
         return "redirect:/";

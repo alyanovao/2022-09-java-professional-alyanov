@@ -7,16 +7,15 @@ import org.springframework.data.relational.core.mapping.Table;
 
 @Getter
 @ToString
-@NoArgsConstructor
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Table(name = "address")
 public class Address {
 
     @Id
-    private Long Id;
+    private final Long Id;
 
     @NonNull
-    private String street;
+    private final String street;
 
-    private Long clientId;
+    private final Long clientId;
 }

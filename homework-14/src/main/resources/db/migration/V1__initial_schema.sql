@@ -23,4 +23,4 @@ create table client
     phone_id bigint
 );
 
-alter table client add constraint client_pk foreign key(phone_id) references phone;
+alter table phone add constraint phone_pk foreign key (client_id) references client;

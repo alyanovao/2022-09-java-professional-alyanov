@@ -14,7 +14,7 @@ public class Phone {
     @NonNull
     private String number;
 
-    //@NonNull
+    @NonNull
     private Long clientId;
 
 }
