@@ -9,8 +9,8 @@ public class Job {
     private final Logger log = LoggerFactory.getLogger(Job.class);
 
     boolean directionCount = true;
-    static String lastThreadName = "";
-    static String firstThreadName;
+    String lastThreadName = "";
+    String firstThreadName;
 
     public synchronized void action(int startCount, String prefixThreadName, String threadOrder) {
         int count = startCount;
