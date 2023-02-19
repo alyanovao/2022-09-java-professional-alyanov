@@ -9,34 +9,36 @@ public class Job {
     private final Logger log = LoggerFactory.getLogger(Job.class);
 
     boolean directionCount = true;
-    String lastThreadName = "";
-    String firstThreadName;
+    static String lastThreadName = "";
+    static String firstThreadName;
 
     public synchronized void action(int startCount, String prefixThreadName, String threadOrder) {
-        log.info("start :: " + Thread.currentThread().getName());
         int count = startCount;
         firstThreadName = prefixThreadName + threadOrder;
-        while (!Thread.currentThread().isInterrupted()) {
-            try {
-                if (firstThreadName != null && !firstThreadName.equals(Thread.currentThread().getName())) {
-                    this.wait();
-                } else {
-                    firstThreadName = null;
-                }
-                while (lastThreadName.equals(Thread.currentThread().getName())) {
-                    this.wait();
-                }
-                log.info("count=" + count);
-                lastThreadName = Thread.currentThread().getName();
-                sleep();
-                setDirectionCount(count);
-                count = changeCounter(directionCount, count);
+
+        try {
+
+            if (!firstThreadName.equals(Thread.currentThread().getName())) {
                 notifyAll();
+                this.wait();
             }
-            catch (InterruptedException e) {
-                log.error(e.getMessage());
-                Thread.currentThread().interrupt();
+            while (!Thread.currentThread().isInterrupted()) {
+                    while (lastThreadName.equals(Thread.currentThread().getName())) {
+                        lastThreadName = Thread.currentThread().getName();
+                        notifyAll();
+                        this.wait();
+                    }
+                    log.info("count=" + count);
+                    lastThreadName = Thread.currentThread().getName();
+                    sleep();
+                    setDirectionCount(count);
+                    count = changeCounter(directionCount, count);
+                    notifyAll();
             }
+        }
+        catch (InterruptedException e) {
+            log.error(e.getMessage());
+            Thread.currentThread().interrupt();
         }
     }
 
