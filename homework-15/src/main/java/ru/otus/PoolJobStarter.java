@@ -7,10 +7,9 @@ public class PoolJobStarter {
         var job = new Job();
         int startCount = 1;
         String primaryOrder = "1";
-        String prefixThreadName = "pool-1-thread-";
 
         var executor = Executors.newFixedThreadPool(2);
-        executor.submit(() -> job.action(startCount, prefixThreadName, primaryOrder));
-        executor.submit(() -> job.action(startCount, prefixThreadName, primaryOrder));
+        executor.submit(() -> job.action(startCount, primaryOrder));
+        executor.submit(() -> job.action(startCount, primaryOrder));
     }
 }

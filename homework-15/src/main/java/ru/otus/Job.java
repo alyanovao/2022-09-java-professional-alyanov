@@ -8,32 +8,33 @@ import java.util.concurrent.TimeUnit;
 public class Job {
     private final Logger log = LoggerFactory.getLogger(Job.class);
 
-    boolean directionCount = true;
-    String lastThreadName = "";
-    String firstThreadName;
+    private boolean directionCount = true;
+    private String lastThreadName = "";
+    private String firstThreadName;
 
-    public synchronized void action(int startCount, String prefixThreadName, String threadOrder) {
+    public synchronized void action(int startCount, String threadOrder) {
         int count = startCount;
-        firstThreadName = prefixThreadName + threadOrder;
+
+        firstThreadName = Thread.currentThread().getName().substring(0, Thread.currentThread().getName().length() - 1) + threadOrder;
 
         try {
-
             if (!firstThreadName.equals(Thread.currentThread().getName())) {
                 notifyAll();
                 this.wait();
             }
+
             while (!Thread.currentThread().isInterrupted()) {
-                    while (lastThreadName.equals(Thread.currentThread().getName())) {
-                        lastThreadName = Thread.currentThread().getName();
-                        notifyAll();
-                        this.wait();
-                    }
-                    log.info("count=" + count);
+                while (lastThreadName.equals(Thread.currentThread().getName())) {
                     lastThreadName = Thread.currentThread().getName();
-                    sleep();
-                    setDirectionCount(count);
-                    count = changeCounter(directionCount, count);
                     notifyAll();
+                    this.wait();
+                }
+                log.info("count=" + count);
+                lastThreadName = Thread.currentThread().getName();
+                sleep();
+                setDirectionCount(count);
+                count = changeCounter(directionCount, count);
+                notifyAll();
             }
         }
         catch (InterruptedException e) {
