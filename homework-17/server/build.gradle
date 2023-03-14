@@ -1,0 +1,66 @@
+plugins {
+    id 'java'
+    id "com.google.protobuf" version "0.8.16"
+    id 'idea'
+    id "org.springframework.boot"
+}
+
+apply plugin: 'com.google.protobuf'
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+dependencies {
+    implementation "io.grpc:grpc-api:${Versions.grpc}"
+    implementation "com.google.protobuf:protobuf-java:${Versions.protobuf}"
+    implementation "org.springframework.boot:spring-boot-starter:${Versions.springboot}"
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation "net.devh:grpc-server-spring-boot-starter:${Versions.grpcStarter}"
+    implementation "org.apache.tomcat:annotations-api:${Versions.tomcatAnnotationsApi}"
+    implementation 'org.projectlombok:lombok:1.18.22'
+}
+
+def filesBaseDir = "$projectDir/build/generated"
+def protoSrcDir = "$projectDir/build/generated/proto"
+def grpcSrcDir = "$projectDir/build/generated/grpc"
+
+sourceSets {
+    main {
+        proto {
+            srcDir protoSrcDir
+        }
+        java {
+            srcDir grpcSrcDir
+        }
+    }
+}
+
+idea {
+    module {
+        sourceDirs += file(protoSrcDir);
+        sourceDirs += file(grpcSrcDir);
+    }
+}
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.12.1'
+    }
+
+    plugins {
+        grpc {generatedFilesBaseDir = filesBaseDir
+            generateProtoTasks {
+                ofSourceSet('main')*.plugins { grpc {} }
+            }
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.30.2'
+
+        }
+    }
+
+    generatedFilesBaseDir = filesBaseDir
+    generateProtoTasks {
+        ofSourceSet('main')*.plugins { grpc {} }
+    }
+}
+
+test {}

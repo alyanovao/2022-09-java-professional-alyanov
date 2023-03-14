@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: local-grpc-client
+server:
+  port: 8000
+grpc:
+  client:
+    local-grpc-server:
+      negotiationType: PLAINTEXT
+      address: static://0.0.0.0:8002
+
+application:
+  client:
+    firstvalue: 0
+    lastvalue: 50
+  server:
+    firstvalue: 0
+    lastvalue: 30

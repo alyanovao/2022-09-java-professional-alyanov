@@ -1,7 +1,7 @@
 plugins {
     id "io.spring.dependency-management" version "1.0.11.RELEASE"
     id 'com.github.johnrengelman.shadow' version '7.1.2' apply false
-    id "org.springframework.boot" version "3.0.2" apply false
+    id "org.springframework.boot" version "2.7.4" apply false
 }
 
 allprojects {
@@ -21,7 +21,17 @@ allprojects {
                     mavenBom "org.testcontainers:testcontainers-bom:1.17.3"
                 }
             }
+            dependency("io.grpc:grpc-netty:${Versions.grpc}")
+            dependency("io.grpc:grpc-protobuf:${Versions.grpc}")
+            dependency("io.grpc:grpc-stub:${Versions.grpc}")
             dependency "com.google.guava:guava:${Versions.guava}"
+        }
+    }
+
+    configurations.configureEach {
+        resolutionStrategy {
+            failOnVersionConflict()
+            force("com.google.errorprone:error_prone_annotations:2.7.1")
         }
     }
 }
