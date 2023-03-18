@@ -1,0 +1,18 @@
+plugins {
+    id 'java'
+    id 'idea'
+}
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+dependencies {
+    implementation "io.grpc:grpc-api:${Versions.grpc}"
+    implementation "com.google.protobuf:protobuf-java:${Versions.protobuf}"
+    implementation "org.springframework.boot:spring-boot-starter:${Versions.springboot}"
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation "net.devh:grpc-server-spring-boot-starter:${Versions.grpcStarter}"
+    implementation "org.apache.tomcat:annotations-api:${Versions.tomcatAnnotationsApi}"
+}
+
+test {}
