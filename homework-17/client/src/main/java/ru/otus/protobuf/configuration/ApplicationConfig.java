@@ -9,16 +9,16 @@ import ru.otus.protobuf.model.ConfigParams;
 public class ApplicationConfig {
 
     @Value("${application.client.firstvalue}")
-    private Integer clientFirstValue;
+    private int clientFirstValue;
 
     @Value("${application.client.lastvalue}")
-    private Integer clientLastValue;
+    private int clientLastValue;
 
     @Value("${application.server.firstvalue}")
-    private Integer serverFirstValue;
+    private int serverFirstValue;
 
     @Value("${application.server.lastvalue}")
-    private Integer serverLastValue;
+    private int serverLastValue;
 
     @Bean
     public ConfigParams getConfiguration() {
