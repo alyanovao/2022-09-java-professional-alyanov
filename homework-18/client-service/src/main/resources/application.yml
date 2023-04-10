@@ -3,7 +3,3 @@ server:
 
 datastore:
   url: http://localhost:8081
-
-app:
-  observer:
-    roomId: 1408

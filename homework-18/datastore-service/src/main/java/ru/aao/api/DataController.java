@@ -19,7 +19,6 @@ import ru.aao.service.DataStore;
 @RestController
 public class DataController {
     private static final Logger log = LoggerFactory.getLogger(DataController.class);
-    public static final String ROOM = "1408";
     private final DataStore dataStore;
     private final Scheduler workerPool;
 
@@ -45,13 +44,18 @@ public class DataController {
         return msgId;
     }
 
+    @GetMapping(value = "/msg", produces = MediaType.APPLICATION_NDJSON_VALUE)
+    public Flux<MessageDto> getAllMessages() {
+        return dataStore.loadAllMessages()
+                .publishOn(workerPool)
+                .doOnNext(room -> log.info("getMessagesByRoomId, room:{}", room))
+                .map(message -> new MessageDto(message.getMsgText()))
+                .doOnNext(msgDto -> log.info("msgDto:{}", msgDto))
+                .subscribeOn(workerPool);
+    }
+
     @GetMapping(value = "/msg/{roomId}", produces = MediaType.APPLICATION_NDJSON_VALUE)
     public Flux<MessageDto> getMessagesByRoomId(@PathVariable("roomId") String roomId) {
-        if (roomId.equals(ROOM)) {
-            return dataStore.loadAllMessages().map(message -> new MessageDto(message.getMsgText()))
-                    .subscribeOn(workerPool);
-
-        }
         return Mono.just(roomId)
                     .doOnNext(room -> log.info("getMessagesByRoomId, room:{}", room))
                     .flatMapMany(dataStore::loadMessages)

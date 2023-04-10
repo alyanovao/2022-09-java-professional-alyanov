@@ -22,6 +22,8 @@ public class MessageController {
     private static final Logger logger = LoggerFactory.getLogger(MessageController.class);
 
     private static final String TOPIC_TEMPLATE = "/topic/response.";
+    private static final String MAGIC_ROOM_ID = "1408";
+    private static final String MAGIC_TOPIC = TOPIC_TEMPLATE + MAGIC_ROOM_ID;
 
     private final WebClient datastoreClient;
     private final SimpMessagingTemplate template;
@@ -52,9 +54,10 @@ public class MessageController {
         }
         var roomId = parseRoomId(simpDestination);
 
-        getMessagesByRoomId(roomId)
-                .doOnError(ex -> logger.error("getting messages for roomId:{} failed", roomId, ex))
-                .subscribe(message -> template.convertAndSend(simpDestination, message));
+        Flux<Message> msg = MAGIC_TOPIC.equals(simpDestination) ? getAllMessages() : getMessagesByRoomId(roomId);
+
+        msg.doOnError(ex -> logger.error("getting messages for roomId:{} failed", roomId, ex))
+            .subscribe(message -> template.convertAndSend(simpDestination, message));
     }
 
     private long parseRoomId(String simpDestination) {
@@ -71,6 +74,18 @@ public class MessageController {
                 .accept(MediaType.APPLICATION_JSON)
                 .bodyValue(message)
                 .exchangeToMono(response -> response.bodyToMono(Long.class));
+    }
+
+    private Flux<Message> getAllMessages() {
+        return datastoreClient.get().uri(String.format("/msg"))
+                .accept(MediaType.APPLICATION_NDJSON)
+                .exchangeToFlux(response -> {
+                    if (response.statusCode().equals(HttpStatus.OK)) {
+                        return  response.bodyToFlux(Message.class);
+                    } else {
+                        return response.createException().flatMapMany(Mono::error);
+                    }
+                });
     }
 
     private Flux<Message> getMessagesByRoomId(long roomId) {
